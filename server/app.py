@@ -26,7 +26,7 @@ app = FastAPI(
 )
 
 # Mount static files for the demo UI
-static_dir = os.path.join(os.path.dirname(__file__), "static")
+static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 

@@ -14,6 +14,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "openenv-core>=0.2.3",
     "fastapi>=0.111.0",
     "uvicorn[standard]>=0.29.0",
     "pydantic>=2.1.1",
@@ -24,6 +25,12 @@ dependencies = [
     "pyyaml"
 ]
 
+[project.scripts]
+server = "server.app:main"
+
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["triage_env*", "graders*"]
+include = ["server*", "triage_env*", "graders*"]
+
+[tool.uv]
+managed = true

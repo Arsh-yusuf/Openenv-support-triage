@@ -61,8 +61,10 @@ async def root():
 
 
 @app.post("/reset")
-async def reset(req: ResetRequest):
+async def reset(req: Optional[ResetRequest] = None):
     global _current_obs
+    if req is None:
+        req = ResetRequest()
     try:
         obs = _env.reset(req.task_id)
         _current_obs = obs

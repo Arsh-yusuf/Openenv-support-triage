@@ -5,7 +5,7 @@ Exposes step / reset / state endpoints over FastAPI.
 
 from __future__ import annotations
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
@@ -61,12 +61,23 @@ async def root():
 
 
 @app.post("/reset")
-async def reset(req: Optional[ResetRequest] = None):
+async def reset(request: Request, task_id: Optional[str] = None):
     global _current_obs
-    if req is None:
-        req = ResetRequest()
+    
+    # Try to find task_id in query first, then in body
+    final_task_id = task_id
+    if not final_task_id:
+        try:
+            body = await request.json()
+            final_task_id = body.get("task_id")
+        except:
+            pass
+    
+    if not final_task_id:
+        final_task_id = "task1-easy"
+
     try:
-        obs = _env.reset(req.task_id)
+        obs = _env.reset(final_task_id)
         _current_obs = obs
         return obs.model_dump()
     except ValueError as e:

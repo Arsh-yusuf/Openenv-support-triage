@@ -1,0 +1,143 @@
+env_id: support-triage-v1
+version: "1.0.0"
+display_name: "Customer Support Ticket Triage"
+description: >
+  An OpenEnv-compliant environment simulating a real-world customer support
+  operations centre. Agents must triage incoming support tickets by classifying
+  their category, assigning priority levels, routing them to the correct team,
+  and drafting appropriate replies — all under shaped reward signals that
+  reward partial progress and penalise harmful actions.
+
+domain: customer-support
+task_type: classification+routing+generation
+observation_type: text
+action_type: structured-dict
+reward_type: shaped-continuous
+
+tasks:
+  - id: task1-easy
+    name: "Basic Triage"
+    description: "Classify and prioritize 5 clearly-labelled support tickets."
+    difficulty: easy
+    n_tickets: 5
+    metrics: [category_accuracy, priority_accuracy]
+    pass_threshold: 0.80
+    max_steps: 5
+
+  - id: task2-medium
+    name: "Ambiguous Triage + Routing"
+    description: "Classify, prioritize, and route 8 tickets with ambiguous signals."
+    difficulty: medium
+    n_tickets: 8
+    metrics: [category_accuracy, priority_accuracy, routing_accuracy]
+    pass_threshold: 0.70
+    max_steps: 8
+
+  - id: task3-hard
+    name: "Full Pipeline: Triage + Routing + Reply"
+    description: >
+      Handle 12 complex, real-world tickets end-to-end: classify, prioritize,
+      route to the correct team, and draft a context-appropriate reply.
+    difficulty: hard
+    n_tickets: 12
+    metrics: [category_accuracy, priority_accuracy, routing_accuracy, reply_quality]
+    pass_threshold: 0.65
+    max_steps: 12
+
+action_space:
+  type: dict
+  fields:
+    action_type:
+      type: enum
+      values: [classify, route, reply, escalate, close, skip]
+    category:
+      type: enum
+      values: [billing, technical, account, shipping, returns, general, spam]
+      required_for: [task1-easy, task2-medium, task3-hard]
+    priority:
+      type: enum
+      values: [critical, high, medium, low, ignore]
+      required_for: [task1-easy, task2-medium, task3-hard]
+    team:
+      type: string
+      required_for: [task2-medium, task3-hard]
+    reply_text:
+      type: string
+      required_for: [task3-hard]
+    reasoning:
+      type: string
+      optional: true
+
+observation_space:
+  type: dict
+  fields:
+    step: int
+    ticket:
+      type: object
+      fields:
+        id: string
+        subject: string
+        body: string
+        sender_email: string
+        received_at: string
+        attachments: list[string]
+    inbox_remaining: int
+    inbox_total: int
+    actions_taken: list[dict]
+    episode_reward_so_far: float
+    task_id: string
+    hints: list[string]
+
+reward:
+  range: [-1.0, 1.0]
+  shaped: true
+  components:
+    category_correct:  +0.40
+    priority_exact:    +0.30
+    priority_partial:  +0.15
+    routing_correct:   +0.20
+    reply_quality:     +0.50
+    spam_bonus:        +0.10
+    escalation_apt:    +0.05
+    speed_bonus:       +0.10
+    skip_penalty:      -0.30
+    wrong_escalation:  -0.20
+
+baseline_scores:
+  model: meta-llama/Llama-3.1-8B-Instruct
+  task1-easy:
+    score: 0.84
+    category_accuracy: 1.00
+    priority_accuracy: 0.80
+  task2-medium:
+    score: 0.67
+    category_accuracy: 0.875
+    priority_accuracy: 0.625
+    routing_accuracy: 0.625
+  task3-hard:
+    score: 0.58
+    category_accuracy: 0.833
+    priority_accuracy: 0.583
+    routing_accuracy: 0.500
+    reply_quality_avg: 0.650
+
+dependencies:
+  python: ">=3.10"
+  packages:
+    - fastapi>=0.111.0
+    - uvicorn>=0.29.0
+    - pydantic>=2.0.0
+    - openai>=1.0.0
+
+tags:
+  - openenv
+  - nlp
+  - customer-support
+  - classification
+  - routing
+  - generation
+  - real-world
+
+author: "OpenEnv Demo"
+license: MIT
+repository: "https://huggingface.co/spaces/openenv/support-triage-v1"

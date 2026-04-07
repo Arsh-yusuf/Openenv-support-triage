@@ -1,3 +1,14 @@
+---
+title: Customer Support Ticket Triage
+emoji: 🤖
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+tags:
+  - openenv
+---
+
 # OpenEnv: Customer Support Ticket Triage
 
 [![openenv](https://img.shields.io/badge/openenv-v1.0.0-6b5df5)](https://github.com/openenv)

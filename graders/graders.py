@@ -64,6 +64,7 @@ class Task1Grader:
         cat_acc = cat_correct / n if n > 0 else 0.0
         pri_acc = pri_correct / n if n > 0 else 0.0
         score = (cat_acc * 0.6 + pri_acc * 0.4)
+        score = max(0.0001, min(0.9999, score))
 
         return GraderResult(
             score=round(score, 4),
@@ -135,6 +136,7 @@ class Task2Grader:
 
         # Weighted: category most important, then priority, then routing
         score = cat_acc * 0.45 + pri_acc * 0.30 + route_acc * 0.25
+        score = max(0.0001, min(0.9999, score))
 
         return GraderResult(
             score=round(score, 4),
@@ -255,6 +257,7 @@ class Task3Grader:
 
         score = (cat_acc * 0.30 + pri_acc * 0.20 +
                  route_acc * 0.20 + reply_avg * 0.30)
+        score = max(0.0001, min(0.9999, score))
 
         return GraderResult(
             score=round(score, 4),

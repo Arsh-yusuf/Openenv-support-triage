@@ -116,7 +116,8 @@ def run_task(env: SupportTriageEnv, task_id: str):
     rewards = []
     steps = 0
     success = False
-    
+    task_score = 0.01  # default score if something goes wrong early
+
     # ── [START] ──
     print(f"[START] task={task_id} env=support-triage model={MODEL_NAME}", flush=True)
 
@@ -172,17 +173,19 @@ def run_task(env: SupportTriageEnv, task_id: str):
         
         # Summary check
         summary = env.episode_summary()
-        success = summary.score >= 0.70  # Arbitrary success threshold for log
+        task_score = max(0.01, min(0.99, summary.score))
+        success = task_score >= 0.70  # Arbitrary success threshold for log
         
     except Exception as e:
+        task_score = 0.01
         # Emit one error step if reset fails
-        print(f"[STEP] step=1 action=null reward=0.00 done=true error={str(e)}", flush=True)
+        print(f"[STEP] step=1 action=null reward=0.01 done=true error={str(e)}", flush=True)
     
     finally:
         # ── [END] ──
         success_str = "true" if success else "false"
         rewards_str = ",".join([f"{r:.2f}" for r in rewards])
-        print(f"[END] success={success_str} steps={steps} rewards={rewards_str}", flush=True)
+        print(f"[END] success={success_str} steps={steps} score={task_score:.4f} rewards={rewards_str}", flush=True)
 
 def main():
     env = SupportTriageEnv()

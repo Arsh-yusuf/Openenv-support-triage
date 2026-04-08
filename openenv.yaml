@@ -107,7 +107,7 @@ baseline_scores:
   model: meta-llama/Llama-3.1-8B-Instruct
   task1-easy:
     score: 0.84
-    category_accuracy: 1.00
+    category_accuracy: 0.99
     priority_accuracy: 0.80
   task2-medium:
     score: 0.67

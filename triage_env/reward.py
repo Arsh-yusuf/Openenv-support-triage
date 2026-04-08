@@ -60,10 +60,10 @@ def compute_reward(
 
     # ── Skip penalty ──────────────────────────────────────────────────────
     if action.action_type == ActionType.SKIP:
-        breakdown["skip_penalty"] = -0.3
+        breakdown["skip_penalty"] = 0.01
         return Reward(
-            total=-0.3,
-            penalty=-0.3,
+            total=0.01,
+            penalty=0.01,
             breakdown=breakdown,
         )
 
@@ -129,8 +129,8 @@ def compute_reward(
         breakdown["speed_bonus"] = speed_bonus
         total += speed_bonus
 
-    # Clamp to [-1, 1]
-    total = max(-1.0, min(1.0, total))
+    # Clamp to strictly (0, 1) — Scaler validator requires values exclusively between 0 and 1
+    total = max(0.01, min(0.99, total))
 
     return Reward(
         total=total,
